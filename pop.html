@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Madimi+One&display=swap" rel="stylesheet">    
+    <style>
+/* Default light mode styles */
+.curved-div {
+    background-color: purple;
+    height: 150px;
+    width: 100%;
+    min-width: 400px;
+    position: relative;
+    font-family: "Madimi One";
+    text-align: center;
+    color:#ffffff;
+    font-size: 500%;
+    padding-top:25px;
+}
+.curved-div::after {
+    content: '';
+    position: absolute;
+    bottom: -25px; /* Adjust curve depth */
+    left: 0;
+    width: 100%;
+    height: 50px; /* Height of the curve */
+    background-color: purple; /* Match the body's background color */
+    border-radius: 100% / 100%; /* Creates the bump effect */
+}
+.madimi-one-regular {
+font-family: "Madimi One", sans-serif;
+font-weight: 400;
+font-style: normal;
+}
+
+body {
+    border-width: 0 ;
+    background-color: #ffffff;
+    color: #000000;
+    margin: 0px;
+}           
+.dark-mode {
+    background-color: #2c3e50;
+    color: #ecf0f1;
+}
+.dark-mode button {
+    background-color: #34495e;
+    color: #ecf0f1;
+}
+#mode-toggle {
+    cursor: pointer;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #ecf0f1;
+    border: none;
+    border-radius: 50%;
+    padding: 10px;
+    font-size: 20px;
+}
+.dark-mode #mode-toggle {
+    background-color: #34495e;
+    color: #ecf0f1;
+}
+
+
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  background-size: 50vw;
+  background-size: unquote('min(100vw, 40em)');
+}
+
+html {
+  font-size: calc(100% + 0.5vw);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition-duration: 0.001s !important;
+  }
+}
+
+.button-1 {
+  align-items: center;
+  appearance: none;
+  background-color: #fff;
+  border-radius: 24px;
+  border-style: none;
+  box-shadow: rgba(0, 0, 0, .2) 0 3px 5px -1px,rgba(0, 0, 0, .14) 0 6px 10px 0,rgba(0, 0, 0, .12) 0 1px 18px 0;
+  box-sizing: border-box;
+  color: #3c4043;
+  cursor: pointer;
+  display: inline-flex;
+  fill: currentcolor;
+  font-family: "Google Sans",Roboto,Arial,sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  height: 48px;
+  justify-content: center;
+  letter-spacing: .25px;
+  line-height: normal;
+  max-width: 100%;
+  overflow: visible;
+  padding: 2px 24px;
+  position: relative;
+  text-align: center;
+  text-transform: none;
+  transition: box-shadow 280ms cubic-bezier(.4, 0, .2, 1),opacity 15ms linear 30ms,transform 270ms cubic-bezier(0, 0, .2, 1) 0ms;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  width: auto;
+  will-change: transform,opacity;
+  z-index: 0;
+}
+.button-1:hover {
+  background: #F6F9FE;
+  color: #174ea6;
+}
+.button-1:active {
+  box-shadow: 0 4px 4px 0 rgb(60 64 67 / 30%), 0 8px 12px 6px rgb(60 64 67 / 15%);
+  outline: none;
+}
+.button-1:focus {
+  outline: none;
+  border: 2px solid #4285f4;
+}
+.button-1:not(:disabled) {
+  box-shadow: rgba(60, 64, 67, .3) 0 1px 3px 0, rgba(60, 64, 67, .15) 0 4px 8px 3px;
+}
+.button-1:not(:disabled):hover {
+  box-shadow: rgba(60, 64, 67, .3) 0 2px 3px 0, rgba(60, 64, 67, .15) 0 6px 10px 4px;
+}
+.button-1:not(:disabled):focus {
+  box-shadow: rgba(60, 64, 67, .3) 0 1px 3px 0, rgba(60, 64, 67, .15) 0 4px 8px 3px;
+}
+.button-1:not(:disabled):active {
+  box-shadow: rgba(60, 64, 67, .3) 0 4px 4px 0, rgba(60, 64, 67, .15) 0 8px 12px 6px;
+}
+
+.button-1:disabled {
+  box-shadow: rgba(60, 64, 67, .3) 0 1px 3px 0, rgba(60, 64, 67, .15) 0 4px 8px 3px;
+}
+
+.container {
+  background: linear-gradient(100deg, #402, #006);
+  padding: 2em;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 460 55'%3E%3Cg fill='none' fill-rule='evenodd' stroke='%23fff' stroke-width='7' opacity='.1'%3E%3Cpath d='M-345 34.5s57.5-13.8 115-13.8 115 13.8 115 13.8S-57.5 48.3 0 48.3s115-13.8 115-13.8 57.5-13.8 115-13.8 115 13.8 115 13.8 57.5 13.8 115 13.8 115-13.8 115-13.8'/%3E%3Cpath d='M-345 20.7s57.5-13.8 115-13.8 115 13.8 115 13.8S-57.5 34.5 0 34.5s115-13.8 115-13.8S172.5 6.9 230 6.9s115 13.8 115 13.8 57.5 13.8 115 13.8 115-13.8 115-13.8m-920 27.6s57.5-13.8 115-13.8 115 13.8 115 13.8S-57.5 62.1 0 62.1s115-13.8 115-13.8 57.5-13.8 115-13.8 115 13.8 115 13.8 57.5 13.8 115 13.8 115-13.8 115-13.8'/%3E%3Cpath d='M-345 6.9s57.5-13.8 115-13.8S-115 6.9-115 6.9-57.5 20.7 0 20.7 115 6.9 115 6.9 172.5-6.9 230-6.9 345 6.9 345 6.9s57.5 13.8 115 13.8S575 6.9 575 6.9'/%3E%3Cpath d='M-345-6.9s57.5-13.8 115-13.8S-115-6.9-115-6.9-57.5 6.9 0 6.9 115-6.9 115-6.9s57.5-13.8 115-13.8S345-6.9 345-6.9 402.5 6.9 460 6.9 575-6.9 575-6.9m-920 69s57.5-13.8 115-13.8 115 13.8 115 13.8S-57.5 75.9 0 75.9s115-13.8 115-13.8 57.5-13.8 115-13.8 115 13.8 115 13.8 57.5 13.8 115 13.8 115-13.8 115-13.8'/%3E%3C/g%3E%3C/svg%3E%0A"),
+    linear-gradient(80deg, #202, #006);
+  background-position: 50% 50%;
+  animation: background-move 10s linear infinite;
+  background-size: 100vw auto, 100% 100%;
+  background-size: unquote('max(100vw, 30em)') auto, 100% 100%;
+}
+
+@keyframes background-move {
+  0% { background-position: 0 0, 0 0; }
+  100% { 
+    background-position: 100vw 0, 0 0;
+    background-position: unquote('max(100vw, 40em)')  0, 0 0;
+  }
+}
+.titler {
+
+}
+.glass {
+    background: rgba(255, 255, 255, 0.26);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 15px;
+
+}
+
+.input-group {
+  width: 100%;
+  max-width: 20em;
+  display: flex;
+  flex-direction: column;
+  z-index: 2;
+
+  @supports (mix-blend-mode: darken) {
+    position: relative;
+    mix-blend-mode: lighten;
+
+    &__label {
+      position: absolute;
+      left: 3em;
+      top: -0.28em;
+      background: #000;
+    }
+  }
+
+  &__label {
+    padding: 0 0.5em;
+    margin-bottom: 0.5em;
+    text-transform: uppercase;
+    font-size: 0.875em;
+    letter-spacing: 0.1em;
+    color: #ccd;
+    color: rgba(255, 220, 255, 0.6);
+    cursor: pointer;
+  }
+
+  &__input {
+    color: #fff;
+    font-size: 1.25rem;
+    line-height: 1;
+    border-style: none;
+    outline: none;
+    // height calc line-height + (vertical-padding * 2) + (vertical-border * 2)
+    height: calc(1em + 1.6em + 0.5em);
+    width: 100%;
+    padding: 0.8em 1em;
+    border: 0.25em solid transparent;
+    background-image: linear-gradient(#000, #000),
+      linear-gradient(120deg, #f09 0%, #0ff 50%, #9f0 100%);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    border-radius: 1.8em;
+    background-size: 200% 100%;
+    transition: background-position 0.8s ease-out;
+    
+    &:hover {
+      background-position: 100% 0;
+    }
+
+    &:focus {
+      outline: 2px dashed #ad2b89;
+      outline-offset: 0.5em;
+    }
+  }
+}
+</style>
+</head>
+<body>
+    <div class="curved-div"><img src="{{ logo }}" alt="" height="48">{{ title }}</div>
+    <button id="mode-toggle">🌙</button>
+    <div class="container">
+        <div class="centered-container madimi-one-regular">
+            <div class="glass">
+                <input type="text" id="name" placeholder="Your Name">
+                <div id="game" style="display:none;"> <!-- Updated display property to none for initial state -->
+                    <p>Rounds remaining: <span id="round"></span></p>
+                    <div id="question"></div>
+                    <button class="button-1" id="answer1" onclick="sendAnswer(1)">test</button>
+                    <button class="button-1" id="answer2" onclick="sendAnswer(2)">test</button>
+                    <button class="button-1" id="answer3" onclick="sendAnswer(3)">test</button>
+                    <button class="button-1" id="answer4" onclick="sendAnswer(4)">test</button>
+                    <div id="timer"></div>
+                </div>
+                <p id="intro">Welcome to Trivia! Enter your name above, and when the game starts, click the buttons to answer.</p>
+                <div id="scoreContainer"><table id="scores"></table></div>
+            </div>
+        </div>
+    </div>
+    <script src="common.js"></script>
+
+    <script>
+        var selected = 0;
+
+        // Handle 'question' event
+        socket.on('question', (data) => {
+            showGame();
+            console.log('Received question event:', data);
+            document.getElementById('round').innerText = data.round;
+            document.getElementById('question').innerText = data.question;
+            document.getElementById('answer1').innerText = data.answers[0];
+            document.getElementById('answer2').innerText = data.answers[1];
+            document.getElementById('answer3').innerText = data.answers[2];
+            document.getElementById('answer4').innerText = data.answers[3];
+            document.getElementById('answer1').style.backgroundColor = '';
+            document.getElementById('answer2').style.backgroundColor = '';
+            document.getElementById('answer3').style.backgroundColor = '';
+            document.getElementById('answer4').style.backgroundColor = '';
+	    selected = 0;
+        });
+
+        // Handle 'timer' event
+        socket.on('timer', (countdown) => {
+            console.log('Received timer event:', countdown);
+            document.getElementById('timer').innerText = `Time left: ${countdown} seconds`;
+        });
+
+        // Handle 'round' event
+        socket.on('round', (data) => {
+            console.log('Received round event:', data);
+            document.getElementById(`answer${selected}`).style.backgroundColor = 'red';
+            document.getElementById(`answer${data.correct_answer}`).style.backgroundColor = 'green';
+
+            updateScores(data);
+        });
+
+        // Handle 'end' event
+        socket.on('end', (data) => {
+            document.getElementById('name').disabled = false;
+            hideGame();
+            console.log('Received end event:', data);
+            //alert('Game Over! Final Scores:\n' + JSON.stringify(data.score));
+        });
+
+        // Handle 'connect' event
+        socket.on('connect', () => {
+            var name = localStorage.getItem("name");
+            if (name) {
+               document.getElementById('name').value = name
+            }
+            console.log('Connected to server.');
+        });
+
+        // Handle 'disconnect' event
+        socket.on('disconnect', () => {
+            console.log('Disconnected from server.');
+        });
+
+        function showGame() {
+            document.getElementById('game').style.display = "";
+            document.getElementById('intro').style.display = "none";
+        }
+
+        function hideGame() {
+            document.getElementById('game').style.display = "none";
+            document.getElementById('intro').style.display = "";
+        }
+
+        function sendAnswer(answer) {
+            document.getElementById('name').disabled = true;
+            localStorage.setItem("name",document.getElementById('name').value);
+            document.getElementById('answer1').style.backgroundColor = '';
+            document.getElementById('answer2').style.backgroundColor = '';
+            document.getElementById('answer3').style.backgroundColor = '';
+            document.getElementById('answer4').style.backgroundColor = '';
+            selected = answer;
+            const clickedButton = document.getElementById(`answer${answer}`);
+            clickedButton.style.backgroundColor = 'yellow';
+            const name = document.getElementById('name').value;
+            socket.emit('answer', { name, answer });
+        }
+
+        const toggleButton = document.getElementById('mode-toggle');
+        toggleButton.onclick = function() {
+            document.body.classList.toggle('dark-mode');
+            toggleButton.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+        };        
+    </script>
+</body>
+</html>
+

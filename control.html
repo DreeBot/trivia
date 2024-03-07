@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trivia Game</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+</head>
+<body>
+    <input type="text" id="rounds" placeholder="Number of rounds">
+    <input type="text" id="seconds" placeholder="Seconds per question">
+    <div>
+        <input type="radio" id="otdb" name="set_type" value="otdb" onChange="changeSource()" checked>
+        <label for="otdb">Open Trivia DB</label>
+        <input type="radio" id="csv" name="set_type" value="csv" onChange="changeSource()">
+        <label for="csv">Custom</label>
+    </div>
+    <div id="csv_set_form" style="display:none;">
+        <label for="set">Choose a question set:</label>
+        <select name="set" id="csvSet">
+        {% for item in sets %}
+            <option value="{{ item }}">{{ item }}</option>
+        {% endfor %}
+        </select>
+    </div>
+    <div id="otdb_set_form">
+        <label for="set">Choose a question set:</label>
+        <select name="set" id="otdbSet">
+            <option value="any">Any Category</option>
+            {% for id, name in otdb.items() %}
+            <option value="{{ id }}">{{ name }}</option>
+            {% endfor %}
+        </select>
+        <p>Open Trivia questions are provided by the <a href="https://opentdb.com/">Open Trivia Database</a> project. Licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/"><img src="https://licensebuttons.net/l/by-sa/4.0/88x31.png" alt="CC-BY-SA"></a>.</p>
+    </div>
+
+    <button onclick="startGame()">Start</button>
+    <div id="scoreContainer"><table id="scores"></table></div>
+    <script src="common.js"></script>
+    <script>
+        // Handle 'round' event
+        socket.on('round', (data) => {
+            console.log('Received round event:', data);
+            updateScores(data);
+        });
+
+        // Handle 'end' event
+        socket.on('end', (data) => {
+            console.log('Received end event:', data);
+            updateScores(data);
+        });
+
+        // Handle 'connect' event
+        socket.on('connect', () => {
+            console.log('Connected to server.');
+        });
+
+        // Handle 'disconnect' event
+        socket.on('disconnect', () => {
+            console.log('Disconnected from server.');
+        });
+
+        function startGame() {
+            const rounds = document.getElementById("rounds").value;
+            const seconds = document.getElementById("seconds").value;
+            if (document.getElementById("csv").checked) {
+                setType = "csv"
+                setId = document.getElementById("csvSet").value;
+            }
+            if (document.getElementById("otdb").checked) {
+                setType = "otdb"
+                setId = document.getElementById("otdbSet").value;
+            }
+            if (setId && seconds && rounds) {
+                console.log('Sending start_game event with set name:', setId);
+                socket.emit('start_game', { set_id: setId, seconds: seconds, rounds: rounds, set_type: setType});
+            }
+        }
+        function changeSource() {
+            document.getElementById("csv_set_form").style.display="none";
+            document.getElementById("otdb_set_form").style.display="none";
+            if (document.getElementById("csv").checked) {
+                document.getElementById("csv_set_form").style.display="";
+            }
+            if (document.getElementById("otdb").checked) {
+                document.getElementById("otdb_set_form").style.display="";
+            }
+        }
+    </script>
+</body>
+</html>
+

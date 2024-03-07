@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "trivia.fullname" . }}
+  labels:
+    {{- include "trivia.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "trivia.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "trivia.labels" . | nindent 8 }}
+	{{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "trivia.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: backend
+          command:
+            - bash
+            - '-c'
+            - source /trivia/venv/bin/activate; python3 /trivia/src/backend.py || sleep 600; exit 1
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http-backend
+              containerPort: {{ .Values.service.backend_port }}
+              protocol: TCP
+          env:
+            - name: FRONTEND_URL
+              value: "{{ .Values.frontend_url }}"
+            - name: PORT
+              value: "{{ .Values.service.backend_port }}"
+            - name: DATA_PATH
+              value: ""
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: {{ .Values.service.backend_port }}
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: {{ .Values.service.backend_port }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- with .Values.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        - name: frontend
+          command:
+            - bash
+            - '-c'
+            - source /trivia/venv/bin/activate; python3 /trivia/src/frontend.py || sleep 600; exit 1
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http-frontend
+              containerPort: {{ .Values.service.frontend_port }}
+              protocol: TCP
+          env:
+            - name: BACKEND_URL
+              value: "{{ .Values.backend_url }}"
+            - name: PORT
+              value: "{{ .Values.service.frontend_port }}"
+            - name: DATA_PATH
+              value: ""
+          livenessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.service.frontend_port }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.service.frontend_port }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- with .Values.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
