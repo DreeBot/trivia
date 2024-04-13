@@ -137,6 +137,7 @@
             document.getElementById('name').disabled = false;
             hideGame();
             console.log('Received end event:', data);
+            console.log('Winner is: ',getHighScore(data.score))
             //alert('Game Over! Final Scores:\n' + JSON.stringify(data.score));
         });
 
@@ -175,6 +176,14 @@
             clickedButton.className = "btn btn-outline-warning";
             const name = document.getElementById('name').value;
             socket.emit('answer', { name, answer });
+        }
+
+        function getHighScore(scores) {
+            var highestVal = Math.max.apply(null, Object.values(scores)),
+            val = Object.keys(scores).find(function(a) {
+                return scores[a] === highestVal;
+            });
+            console.log(val)
         }
 
         const toggleButton = document.getElementById('mode-toggle');
