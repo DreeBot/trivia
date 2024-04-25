@@ -2,9 +2,12 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# Definte the frontend and backend URLs to be used for CORS policy
 frontend_url: http://trivia.dreebot.com/
 backend_url: http://trivia.dreebot.com/
 
+# Only one replica is currently supported, as backends do not
+# currently synchronize game data
 replicaCount: 1
 
 image:
@@ -54,6 +57,7 @@ ingress:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
+    # Multiple hosts may be specified. Both frontend and backend paths will be routed on each port.
     - host: trivia.dreebot.com
       paths:
         - path: /
@@ -93,3 +97,5 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+env: {}

@@ -83,6 +83,10 @@ spec:
               value: "{{ .Values.service.frontend_port }}"
             - name: DATA_PATH
               value: ""
+            {{- range .Values.env }}
+            - name: {{ .name }}
+              value: "{{ .value }}"
+            {{- end }}
           livenessProbe:
             httpGet:
               path: /
