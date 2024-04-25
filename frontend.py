@@ -33,13 +33,16 @@ def control():
         files = os.listdir(datapath)
         sets = [file.split(datapath)[0] for file in files if file.lower().endswith(".csv")]
 
-    otdb_response = requests.get("https://opentdb.com/api_category.php").json()
     otdb={}
-    categories = list(otdb_response['trivia_categories'])
-    dumper.dump(categories)
-    categories.sort(key=lambda category: category["name"])
-    for category in categories:
-        otdb[category['id']] = category['name']
+    try:
+        otdb_response = requests.get("https://opentdb.com/api_category.php", timeout=10).json()
+        categories = list(otdb_response['trivia_categories'])
+        dumper.dump(categories)
+        categories.sort(key=lambda category: category["name"])
+        for category in categories:
+            otdb[category['id']] = category['name']
+    except requests.exceptions.RequestException as e:
+        None
     dumper.dump(otdb)
     return render_template('control.html', sets=sets, otdb=otdb)
 

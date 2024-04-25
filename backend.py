@@ -1,4 +1,3 @@
-# server.py
 import dumper
 import random
 import requests
@@ -25,7 +24,7 @@ def load_questions(set_type, set_id):
     global questions
     questions = [];
     if (set_type == "csv"):
-        with open(f'{os.environ["DATA_PATH"]}{set_id}.csv', 'r') as file:
+        with open(f'{os.environ["DATA_PATH"]}{set_id}', 'r') as file:
             reader = csv.reader(file)
             questions = list(reader)
     else:
