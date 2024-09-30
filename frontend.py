@@ -1,4 +1,5 @@
 import os
+import random
 import requests
 import dumper
 
@@ -9,6 +10,12 @@ web_app = Flask(__name__, template_folder='.')
 # Serve index.html at the root endpoint
 @web_app.route('/')
 def index():
+    interfaces = [glass(), pop()
+    return random.choice(interfaces)
+    
+@web_app.route('/glass')
+@web_app.route('/glass/')
+def glass():
     return render_template('glass.html',
                            tagline=os.getenv("BRAND_TAGLINE", "A trivia Masterpiece!"),
                            title=os.getenv("BRAND_TITLE", "Trivia"),
@@ -17,7 +24,7 @@ def index():
 
 @web_app.route('/pop')
 @web_app.route('/pop/')
-def index():
+def pop():
     return render_template('pop.html',
                            tagline=os.getenv("BRAND_TAGLINE", ""),
                            title=os.getenv("BRAND_TITLE", "Trivia-Pop!"),
