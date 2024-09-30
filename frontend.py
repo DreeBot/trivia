@@ -10,7 +10,7 @@ web_app = Flask(__name__, template_folder='.')
 # Serve index.html at the root endpoint
 @web_app.route('/')
 def index():
-    interfaces = [glass(), pop()
+    interfaces = [glass(), pop()]
     return random.choice(interfaces)
     
 @web_app.route('/glass')
