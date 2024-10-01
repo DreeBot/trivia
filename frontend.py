@@ -7,11 +7,23 @@ from flask import Flask, render_template
 
 web_app = Flask(__name__, template_folder='.')
 
-# Serve index.html at the root endpoint
+# At the root endpoint, serve a random frontend unless one was specified
 @web_app.route('/')
 def index():
-    interfaces = [glass(), pop()]
-    return random.choice(interfaces)
+    options = {
+        "glass": glass,
+        "pop": pop
+    }
+
+   # Retrieve the value of the environment variable INTERFACE
+    interface = os.getenv('INTERFACE')
+    
+    # If INTERFACE is set and found in the dictionary, return the corresponding function result
+    if interface in options:
+        return options[interface]()
+    
+    # If INTERFACE is not set or doesn't match, randomly select one from the options
+    return random.choice(list(options.values()))()
     
 @web_app.route('/glass')
 @web_app.route('/glass/')
